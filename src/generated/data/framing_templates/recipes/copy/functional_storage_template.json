@@ -1,0 +1,10 @@
+{
+  "type": "framing_templates:template_copy",
+  "center": {
+    "item": "minecraft:chest"
+  },
+  "surrounding": {
+    "item": "minecraft:paper"
+  },
+  "template": "framing_templates:functional_storage_template"
+}

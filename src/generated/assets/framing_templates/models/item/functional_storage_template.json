@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "framing_templates:item/functional_storage_template"
+  }
+}

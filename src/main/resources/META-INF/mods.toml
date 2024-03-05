@@ -1,0 +1,27 @@
+modLoader = "javafml"
+loaderVersion = "[47,)"
+license = "All rights reserved" # Want to make your mod open source? Check out https://choosealicense.com/!
+
+
+[[mods]]
+modId = "framing_templates"
+version = "${version}"
+displayName = "Framing Templates"
+description = '''
+Adds replicable templates to quickly frame drawers from different mods.
+'''
+authors = ["MaxNeedsSnacks"]
+
+[[dependencies.framing_templates]]
+modId = "forge"
+mandatory = true
+versionRange = "[47,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.framing_templates]]
+modId = "minecraft"
+mandatory = true
+versionRange = "[1.20.1,)"
+ordering = "NONE"
+side = "BOTH"

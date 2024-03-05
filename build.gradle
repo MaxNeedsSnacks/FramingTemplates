@@ -1,0 +1,100 @@
+plugins {
+	id "dev.architectury.loom" version "1.5-SNAPSHOT"
+	id "maven-publish"
+}
+
+base {
+	archivesName = project.archives_base_name
+}
+
+version = project.mod_version
+group = project.maven_group
+
+java {
+	sourceCompatibility = targetCompatibility = JavaVersion.VERSION_17
+}
+
+def generatedResources = file("src/generated")
+
+loom {
+	silentMojangMappingsLicense()
+
+	runs {
+		data {
+			data()
+			programArgs "--all", "--mod", project.mod_id
+			programArgs "--output", generatedResources.absolutePath
+			programArgs "--existing", file("src/main/resources").absolutePath
+		}
+	}
+}
+
+sourceSets {
+	main {
+		resources.srcDir generatedResources
+	}
+}
+
+repositories {
+	maven { url "https://maven.neoforged.net/releases" }
+	maven { url "https://cursemaven.com" }
+}
+
+dependencies {
+	minecraft "com.mojang:minecraft:${project.minecraft_version}"
+
+	mappings loom.officialMojangMappings()
+
+	forge "net.neoforged:forge:${project.forge_version}"
+
+	modImplementation("curse.maven:storage-drawers-223852:5152196")
+	modImplementation("curse.maven:framed-compacting-drawers-376351:4777556")
+
+	modImplementation("curse.maven:functional-storage-556861:5133499")
+	modImplementation("curse.maven:titanium-287342:5151228")
+
+	// jei for testing
+	modLocalRuntime("curse.maven:jei-238222:5101366")
+}
+
+processResources {
+	inputs.property "version", project.version
+
+	filesMatching("META-INF/mods.toml") {
+		expand "version": project.version
+	}
+}
+
+tasks.withType(JavaCompile) {
+	options.encoding = "UTF-8"
+	options.release = 17
+}
+
+java {
+	withSourcesJar()
+}
+
+jar {
+	manifest {
+		attributes([
+				"Specification-Title"     : project.mod_id,
+				"Specification-Vendor"    : project.mod_author,
+				"Specification-Version"   : "1",
+				"Implementation-Title"    : project.name,
+				"Implementation-Version"  : version,
+				"Implementation-Vendor"   : project.mod_author,
+				"Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
+		])
+	}
+}
+
+publishing {
+	publications {
+		mavenJava(MavenPublication) {
+			from components.java
+		}
+	}
+
+	repositories {
+	}
+}

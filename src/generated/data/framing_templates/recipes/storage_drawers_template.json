@@ -1,0 +1,31 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "group": "framing_templates",
+  "key": {
+    "#": [
+      {
+        "tag": "framedcompactdrawers:frame_double"
+      },
+      {
+        "tag": "framedcompactdrawers:frame_triple"
+      }
+    ],
+    "C": {
+      "tag": "forge:ingots/copper"
+    },
+    "S": {
+      "tag": "forge:rods/wooden"
+    }
+  },
+  "pattern": [
+    "SCS",
+    "S#S",
+    "SCS"
+  ],
+  "result": {
+    "count": 3,
+    "item": "framing_templates:storage_drawers_template"
+  },
+  "show_notification": true
+}

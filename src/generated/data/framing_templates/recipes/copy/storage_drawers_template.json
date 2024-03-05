@@ -1,0 +1,10 @@
+{
+  "type": "framing_templates:template_copy",
+  "center": {
+    "item": "storagedrawers:upgrade_template"
+  },
+  "surrounding": {
+    "tag": "forge:rods/wooden"
+  },
+  "template": "framing_templates:storage_drawers_template"
+}

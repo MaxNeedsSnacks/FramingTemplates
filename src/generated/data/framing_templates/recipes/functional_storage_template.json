@@ -1,0 +1,34 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "group": "framing_templates",
+  "key": {
+    "#": [
+      {
+        "item": "functionalstorage:framed_4"
+      },
+      {
+        "item": "functionalstorage:framed_1"
+      },
+      {
+        "item": "functionalstorage:framed_2"
+      }
+    ],
+    "I": {
+      "tag": "forge:nuggets/iron"
+    },
+    "P": {
+      "item": "minecraft:paper"
+    }
+  },
+  "pattern": [
+    "IPI",
+    "P#P",
+    "IPI"
+  ],
+  "result": {
+    "count": 3,
+    "item": "framing_templates:functional_storage_template"
+  },
+  "show_notification": true
+}
