@@ -5,12 +5,18 @@ import ky.someone.mods.framingtemplates.item.FramingItems;
 import ky.someone.mods.framingtemplates.item.FramingTemplateItem;
 import ky.someone.mods.framingtemplates.recipe.FramingRecipes;
 import ky.someone.mods.framingtemplates.util.FramingUtil;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.Item;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.registries.RegisterEvent;
+import net.minecraftforge.registries.RegistryObject;
 
 @Mod(FramingUtil.MOD_ID)
 public class FramingTemplates {
@@ -19,8 +25,29 @@ public class FramingTemplates {
 
 		FramingItems.REGISTRY.register(modBus);
 		FramingRecipes.REGISTRY.register(modBus);
+		modBus.addListener(this::registerCreativeTab);
 
 		MinecraftForge.EVENT_BUS.addListener(this::onRightClick);
+	}
+
+	private void registerCreativeTab(RegisterEvent event) {
+		if (event.getRegistryKey() != Registries.CREATIVE_MODE_TAB) return;
+
+		event.register(Registries.CREATIVE_MODE_TAB, (helper) -> {
+			var entries = FramingItems.REGISTRY.getEntries();
+			if (entries.isEmpty()) return;
+
+			var allItems = entries.stream()
+					.flatMap(RegistryObject::stream)
+					.map(Item::getDefaultInstance)
+					.toList();
+
+			helper.register("tab", CreativeModeTab.builder()
+					.title(Component.literal(FramingUtil.MOD_NAME))
+					.displayItems((params, output) -> output.acceptAll(allItems))
+					.icon(() -> allItems.get(0))
+					.build());
+		});
 	}
 
 	private void onRightClick(PlayerInteractEvent.RightClickItem event) {

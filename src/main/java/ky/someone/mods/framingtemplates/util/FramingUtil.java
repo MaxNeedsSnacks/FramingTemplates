@@ -8,6 +8,7 @@ import java.util.function.UnaryOperator;
 
 public interface FramingUtil {
 	String MOD_ID = "framing_templates";
+	String MOD_NAME = "Framing Templates";
 
 	UnaryOperator<Style> TOOLTIP_MAIN = (style) -> style.withColor(0xfcb95b);
 	UnaryOperator<Style> TOOLTIP_EXTRA = (style) -> style.withColor(0x0fd1ec).withItalic(true);
