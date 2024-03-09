@@ -50,7 +50,7 @@ dependencies {
 	modImplementation("curse.maven:storage-drawers-223852:5152196")
 	modImplementation("curse.maven:framed-compacting-drawers-376351:4777556")
 
-	modImplementation("curse.maven:functional-storage-556861:5133499")
+	modImplementation("curse.maven:functional-storage-556861:5169765")
 	modImplementation("curse.maven:titanium-287342:5151228")
 
 	// jei for testing
