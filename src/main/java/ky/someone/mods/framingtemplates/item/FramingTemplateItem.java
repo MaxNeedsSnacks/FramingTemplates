@@ -25,7 +25,7 @@ public abstract class FramingTemplateItem extends Item {
 
 	private static final Component NO_DECO = Component.literal("✘").withStyle(TOOLTIP_RED);
 
-	protected final String mod;
+	public final String mod;
 
 	public FramingTemplateItem(String modid) {
 		super(new Item.Properties().stacksTo(16));

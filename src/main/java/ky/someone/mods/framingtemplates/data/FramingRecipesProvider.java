@@ -11,10 +11,7 @@ import ky.someone.mods.framingtemplates.recipe.FramingRecipes;
 import ky.someone.mods.framingtemplates.util.FramingUtil;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.PackOutput;
-import net.minecraft.data.recipes.FinishedRecipe;
-import net.minecraft.data.recipes.RecipeCategory;
-import net.minecraft.data.recipes.RecipeProvider;
-import net.minecraft.data.recipes.ShapedRecipeBuilder;
+import net.minecraft.data.recipes.*;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
@@ -23,6 +20,9 @@ import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.ItemLike;
 import net.minecraftforge.common.Tags;
+import net.minecraftforge.common.crafting.ConditionalRecipe;
+import net.minecraftforge.common.crafting.CraftingHelper;
+import net.minecraftforge.common.crafting.conditions.ModLoadedCondition;
 import net.minecraftforge.registries.RegistryObject;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.Nullable;
@@ -49,27 +49,37 @@ public class FramingRecipesProvider extends RecipeProvider {
 		consumer.accept(new FinishedCopyRecipe(sdTemplate, Ingredient.of(ModItems.UPGRADE_TEMPLATE.get()), Ingredient.of(Tags.Items.RODS_WOODEN)));
 		consumer.accept(new FinishedCopyRecipe(fsTemplate, Ingredient.of(Items.CHEST), Ingredient.of(Items.PAPER)));
 
-		ShapedRecipeBuilder.shaped(RecipeCategory.MISC, sdTemplate, 3)
-				.pattern("SCS")
-				.pattern("S#S")
-				.pattern("SCS")
-				.define('#', sdFramed())
-				.define('S', Tags.Items.RODS_WOODEN)
-				.define('C', Tags.Items.INGOTS_COPPER)
-				.unlockedBy("has_copper", has(Items.COPPER_INGOT))
-				.group("framing_templates")
-				.save(consumer);
+		ConditionalRecipe.builder()
+				.addCondition(new ModLoadedCondition(sdTemplate.mod))
+				.addRecipe(inner -> {
+					ShapedRecipeBuilder.shaped(RecipeCategory.MISC, sdTemplate, 3)
+							.pattern("SCS")
+							.pattern("S#S")
+							.pattern("SCS")
+							.define('#', sdFramed())
+							.define('S', Tags.Items.RODS_WOODEN)
+							.define('C', Tags.Items.INGOTS_COPPER)
+							.unlockedBy("has_copper", has(Items.COPPER_INGOT))
+							.group("framing_templates")
+							.save(inner);
+				})
+				.build(consumer, RecipeBuilder.getDefaultRecipeId(sdTemplate));
 
-		ShapedRecipeBuilder.shaped(RecipeCategory.MISC, fsTemplate, 3)
-				.pattern("IPI")
-				.pattern("P#P")
-				.pattern("IPI")
-				.define('#', fsFramed())
-				.define('P', Items.PAPER)
-				.define('I', Tags.Items.NUGGETS_IRON)
-				.unlockedBy("has_iron", has(Items.IRON_INGOT))
-				.group("framing_templates")
-				.save(consumer);
+		ConditionalRecipe.builder()
+				.addCondition(new ModLoadedCondition(fsTemplate.mod))
+				.addRecipe(inner -> {
+					ShapedRecipeBuilder.shaped(RecipeCategory.MISC, fsTemplate, 3)
+							.pattern("IPI")
+							.pattern("P#P")
+							.pattern("IPI")
+							.define('#', fsFramed())
+							.define('P', Items.PAPER)
+							.define('I', Tags.Items.NUGGETS_IRON)
+							.unlockedBy("has_iron", has(Items.IRON_INGOT))
+							.group("framing_templates")
+							.save(inner);
+				})
+				.build(consumer, RecipeBuilder.getDefaultRecipeId(fsTemplate));
 
 		// special recipes
 		consumer.accept(new FinishedSpecialRecipe(FramingRecipes.TEMPLATE_DECORATION.get(), FramingUtil.id("template_decoration")));
@@ -108,6 +118,7 @@ public class FramingRecipesProvider extends RecipeProvider {
 
 
 		public void serializeRecipeData(JsonObject json) {
+			json.add("forge:conditions", CraftingHelper.serialize(new ModLoadedCondition(template.mod)));
 			json.addProperty("template", templateId.toString());
 			json.add("center", center.toJson());
 			json.add("surrounding", surrounding.toJson());

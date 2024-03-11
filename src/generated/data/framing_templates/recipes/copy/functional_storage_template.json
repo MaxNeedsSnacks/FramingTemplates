@@ -3,6 +3,10 @@
   "center": {
     "item": "minecraft:chest"
   },
+  "forge:conditions": {
+    "type": "forge:mod_loaded",
+    "modid": "functionalstorage"
+  },
   "surrounding": {
     "item": "minecraft:paper"
   },

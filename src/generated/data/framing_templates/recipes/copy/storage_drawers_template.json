@@ -3,6 +3,10 @@
   "center": {
     "item": "storagedrawers:upgrade_template"
   },
+  "forge:conditions": {
+    "type": "forge:mod_loaded",
+    "modid": "framedcompactdrawers"
+  },
   "surrounding": {
     "tag": "forge:rods/wooden"
   },
