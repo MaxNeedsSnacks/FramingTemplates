@@ -17,9 +17,14 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.RegisterEvent;
 import net.minecraftforge.registries.RegistryObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Mod(FramingUtil.MOD_ID)
 public class FramingTemplates {
+
+	public static final Logger LOGGER = LoggerFactory.getLogger(FramingUtil.MOD_NAME);
+
 	public FramingTemplates() {
 		var modBus = FMLJavaModLoadingContext.get().getModEventBus();
 

@@ -85,7 +85,7 @@ public class TemplateCopyRecipe extends ShapedRecipe {
 			var templateId = json.getAsJsonPrimitive("template").getAsString();
 			var item = ForgeRegistries.ITEMS.getValue(new ResourceLocation(templateId));
 			if (!(item instanceof FramingTemplateItem template)) {
-				throw new JsonParseException("Invalid template item!");
+				throw new JsonParseException("Invalid template item %s!".formatted(templateId));
 			}
 
 			var surrounding = Ingredient.fromJson(json.get("surrounding"));
@@ -111,7 +111,7 @@ public class TemplateCopyRecipe extends ShapedRecipe {
 
 		@Override
 		public void toNetwork(FriendlyByteBuf buf, TemplateCopyRecipe recipe) {
-			buf.writeRegistryId(ForgeRegistries.ITEMS, recipe.template);
+			buf.writeRegistryIdUnsafe(ForgeRegistries.ITEMS, recipe.template);
 			recipe.surrounding.toNetwork(buf);
 			recipe.center.toNetwork(buf);
 			buf.writeVarInt(recipe.count);
