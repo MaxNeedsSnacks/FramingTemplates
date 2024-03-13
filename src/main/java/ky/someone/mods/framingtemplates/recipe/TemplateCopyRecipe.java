@@ -2,6 +2,7 @@ package ky.someone.mods.framingtemplates.recipe;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
+import io.netty.handler.codec.DecoderException;
 import ky.someone.mods.framingtemplates.item.FramingTemplateItem;
 import ky.someone.mods.framingtemplates.util.FramingUtil;
 import net.minecraft.core.NonNullList;
@@ -99,7 +100,7 @@ public class TemplateCopyRecipe extends ShapedRecipe {
 		public TemplateCopyRecipe fromNetwork(ResourceLocation id, FriendlyByteBuf buf) {
 			var item = buf.readRegistryIdUnsafe(ForgeRegistries.ITEMS);
 			if (!(item instanceof FramingTemplateItem template)) {
-				throw new JsonParseException("Invalid template item!");
+				throw new DecoderException("Invalid template item!");
 			}
 
 			var surrounding = Ingredient.fromNetwork(buf);
