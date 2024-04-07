@@ -1,17 +1,24 @@
 package ky.someone.mods.framingtemplates.item;
 
-import com.buuz135.functionalstorage.block.DrawerBlock;
-import com.buuz135.functionalstorage.block.FramedDrawerBlock;
-import com.buuz135.functionalstorage.block.tile.FramedDrawerTile;
+import com.buuz135.functionalstorage.FunctionalStorage;
+import com.buuz135.functionalstorage.block.*;
+import com.buuz135.functionalstorage.block.tile.*;
 import com.buuz135.functionalstorage.client.model.FramedDrawerModelData;
+import com.buuz135.functionalstorage.util.DrawerWoodType;
 import ky.someone.mods.framingtemplates.util.DrawerSide;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.LevelEvent;
 import net.minecraft.world.level.block.state.BlockState;
+import org.jetbrains.annotations.Nullable;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class FunctionalStorageTemplate extends FramingTemplateItem {
@@ -27,49 +34,99 @@ public class FunctionalStorageTemplate extends FramingTemplateItem {
 	@Override
 	public boolean applyTemplateInWorld(ItemStack stack, Level level, BlockPos pos, BlockState state) {
 		var be = level.getBlockEntity(pos);
-		if (be instanceof FramedDrawerTile framedDrawer) {
-			var modelData = new FramedDrawerModelData(Map.of());
-			modelData.deserializeNBT(makeModelData(stack));
-			framedDrawer.setFramedDrawerModelData(modelData);
+		var block = convertToFramed(state.getBlock());
 
-			be.requestModelDataUpdate();
-			level.sendBlockUpdated(pos, state, state, 11);
+		if (block == null) return false;
 
-			return true;
+		var modelData = makeModelData(stack);
+
+		if (block != state.getBlock()) {
+			// this is... just as disgusting as the storage drawers one >.>
+			var tag = be.saveWithoutMetadata();
+
+			level.levelEvent(LevelEvent.PARTICLES_DESTROY_BLOCK, pos, Block.getId(state));
+			level.setBlockAndUpdate(pos, block.withPropertiesOf(state));
+			be = level.getBlockEntity(pos);
+			be.load(tag);
 		}
 
-		return false;
+		// buuz why isn't this an interface?
+		if (be instanceof FramedDrawerTile framed) {
+			framed.setFramedDrawerModelData(modelData);
+		} else if (be instanceof FramedDrawerControllerTile framed) {
+			framed.setFramedDrawerModelData(modelData);
+		} else if (be instanceof CompactingFramedDrawerTile framed) {
+			framed.setFramedDrawerModelData(modelData);
+		} else if (be instanceof FramedSimpleCompactingDrawerTile framed) {
+			framed.setFramedDrawerModelData(modelData);
+		} else if (be instanceof FramedControllerExtensionTile framed) {
+			framed.setFramedDrawerModelData(modelData);
+		} else {
+			return false;
+		}
+
+		be.requestModelDataUpdate();
+		return true;
 	}
 
 	@Override
-	public boolean applyTemplateToItem(ItemStack template, ItemStack target) {
+	public ItemStack applyTemplateToItem(ItemStack template, ItemStack target) {
 		var item = target.getItem();
-		if (item instanceof DrawerBlock.DrawerItem drawer && drawer.getBlock() instanceof FramedDrawerBlock) {
-			target.getOrCreateTag().put("Style", makeModelData(template));
-			return true;
+		if (item instanceof BlockItem blockItem) {
+			var converted = convertToFramed(blockItem.getBlock());
+			if(converted != null) {
+				if(!target.is(converted.asItem())) {
+					target = new ItemStack(converted, target.getCount(), target.getTag());
+				}
+				target.getOrCreateTag().put("Style", makeModelData(template).serializeNBT());
+			}
 		}
-		return false;
+		return target;
 	}
 
-	private CompoundTag makeModelData(ItemStack template) {
+	@Nullable
+	private Block convertToFramed(Block input) {
+		if (input instanceof FramedDrawerBlock framed) {
+			return framed;
+		}
+
+		// the framed variants all implement these classes
+		if (input instanceof DrawerControllerBlock) {
+			return FunctionalStorage.FRAMED_DRAWER_CONTROLLER.getKey().get();
+		} else if (input instanceof ControllerExtensionBlock) {
+			return FunctionalStorage.FRAMED_CONTROLLER_EXTENSION.getKey().get();
+		} else if (input instanceof CompactingDrawerBlock) {
+			return FunctionalStorage.FRAMED_COMPACTING_DRAWER.getKey().get();
+		} else if (input instanceof SimpleCompactingDrawerBlock) {
+			return FunctionalStorage.FRAMED_SIMPLE_COMPACTING_DRAWER.getKey().get();
+		} else if (input instanceof DrawerBlock drawer) {
+			var id = new ResourceLocation(FunctionalStorage.MOD_ID,
+					DrawerWoodType.FRAMED.getName() + "_" + drawer.getType().getSlots());
+			return BuiltInRegistries.BLOCK.get(id);
+		}
+
+		return null;
+	}
+
+	private FramedDrawerModelData makeModelData(ItemStack template) {
 		var side = getDecoration(SIDE, template);
 		var front = getDecoration(FRONT, template);
 		var trim = getDecoration(FRONT_DIVIDER, template);
 
-		var tag = new CompoundTag();
+		Map<String, Item> items = new HashMap<>();
 		if (!side.isEmpty()) {
-			var sideItem = BuiltInRegistries.ITEM.getKey(side.getItem());
-			tag.putString("particle", sideItem.toString());
-			tag.putString("side", sideItem.toString());
-			tag.putString("front_divider", sideItem.toString());
+			var sideItem = side.getItem();
+			items.put("particle", sideItem);
+			items.put("side", sideItem);
+			items.put("front_divider", sideItem);
 		}
 		if (!front.isEmpty()) {
-			tag.putString("front", BuiltInRegistries.ITEM.getKey(front.getItem()).toString());
+			items.put("front", front.getItem());
 		}
 		if (!trim.isEmpty()) {
-			tag.putString("front_divider", BuiltInRegistries.ITEM.getKey(trim.getItem()).toString());
+			items.put("trim", trim.getItem());
 		}
-		return tag;
+		return new FramedDrawerModelData(items);
 	}
 
 	@Override

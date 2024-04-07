@@ -63,10 +63,15 @@ public class FramingTemplates {
 		var offHandItem = player.getOffhandItem();
 
 		if (offHandItem.getItem() instanceof FramingTemplateItem template) {
-			if (template.applyTemplateToItem(offHandItem, mainHandItem)) {
+			var applied = template.applyTemplateToItem(offHandItem, mainHandItem);
+			if (!applied.equals(mainHandItem, false)) {
 				if (!player.getAbilities().instabuild) {
-					offHandItem.shrink(1);
+					if (offHandItem.getCount() < mainHandItem.getCount()) {
+						return;
+					}
+					offHandItem.shrink(mainHandItem.getCount());
 				}
+				player.setItemInHand(InteractionHand.MAIN_HAND, applied);
 				event.setCancellationResult(InteractionResult.SUCCESS);
 				event.setCanceled(true);
 			}

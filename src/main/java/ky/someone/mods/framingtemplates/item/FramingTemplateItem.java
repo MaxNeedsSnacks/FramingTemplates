@@ -34,7 +34,7 @@ public abstract class FramingTemplateItem extends Item {
 
 	public abstract boolean applyTemplateInWorld(ItemStack stack, Level level, BlockPos pos, BlockState blockState);
 
-	public abstract boolean applyTemplateToItem(ItemStack template, ItemStack target);
+	public abstract ItemStack applyTemplateToItem(ItemStack template, ItemStack target);
 
 	public ItemStack getDecoration(DrawerSide side, ItemStack stack) {
 		var decorations = stack.getTagElement(DECORATIONS_KEY);
